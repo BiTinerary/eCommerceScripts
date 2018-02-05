@@ -43,9 +43,9 @@ Get monthly eCommerce Sales from Amazon, eBay, Walmart, Jet and ShipStation expo
 ## TODO
 * ~~Finish ship station function --> Add =SUM spread functs~~
 * ~~Pythonically add up totals of a column. Then output dictionary of {eBay: $TotalSales, Amazon: $X} to log file for easy (no gsheet/xlsx) reference~~
-* Add sys.argv[1] input to specify SKU prefix that gets parsed
+* <strike>Add sys.argv[1] input to specify SKU prefix that gets parsed
   * Not needed but would remove personalized, hardcoded 'LUM' SKU prefix.
-  * Incorporate tarps when finalizing Nov.  
+  * Incorporate tarps when finalizing Nov.</strike>  
 * **Add shipstation/shipping cost feature.**
   * Match order number, append shipping cost index to index's row.
   * Purpose of this repo is based on 'whim' of bosses. This feature would add usefulness to more people.
