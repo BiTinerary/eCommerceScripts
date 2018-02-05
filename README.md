@@ -15,7 +15,7 @@ Get monthly eCommerce Sales from Amazon, eBay, Walmart, Jet and ShipStation expo
 
 
 ## Usage
-`python parseMonthlySales.py` will take **any** raw Amazon/Ebay/Walmart/ShipStation spreadsheet exports in the **SpreadsheetExports** folder and parse them. The resulting files will be created in the **output** folder. Each output will be a csv, with a name corresponding to the particular marketplace, todays date and will include only sales, for a particular SKU for the current month.
+`python getSales.py` will take **any** raw Amazon/Ebay/Walmart/ShipStation spreadsheet exports in the **SpreadsheetExports** folder and parse them. The resulting files will be created in the **output** folder. Each output will be a csv, with a name corresponding to the particular marketplace, todays date and will include only sales, for a particular SKU for the current month.
   
 `python OrderAnalysis.py` will take **one** ShipStation csv spreadsheet, in the same directory [as itself] and will remove all extraneous columns except ones pertaining to analysing sales and returns. ie: `python OrderAnalysis.py sales` will  output a trimmed csv which has columns like order date, order number, **cost of shipping**, item description, SKU, etc... where as `python OrderAnalysis.py returns` will perform the same function, but will output different columns relating to returns [manual orders export].
 
