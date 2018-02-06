@@ -1,0 +1,4 @@
+ShipStation: $###.##
+eBay: $###.##
+Wally: $###.## 
+Amazon: $###.## 

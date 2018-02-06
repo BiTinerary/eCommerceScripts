@@ -1,0 +1,2 @@
+PO#,Order#,Order Date,Ship By,Customer Name,Customer Shipping Address,Customer Phone Number,Customer Email ID,Ship to Address 1,Ship to Address 2,City,State,Zip,FLIDS,Line#,UPC,Status,Item Description,Shipping Method,Qty,SKU,Item Cost,Shipping Cost,Tax,Update Status,Update Qty,Carrier,Tracking Number,Tracking Url,
+,,,,,,,,,,,,,,,,,,,=SUM(T2:T1),,=SUM(V2:V1),,,,,,,,
