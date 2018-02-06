@@ -1,43 +1,74 @@
 import unicodecsv, xlrd, sys, csv, os, time
 from datetime import datetime
 
+try:
+	eCommSKU = '%s' % sys.argv[1] # Change product SKU you want sales for by passing argument to script
+except:
+	eCommSKU = "LUM" # if custom SKU not passed, default to Luminara products. ie: Listed items with 'LUM' in sku.
+
 currentTime = datetime.now() # One global for current time/month. Used basically everywhere.
 curMonth = currentTime.strftime("%m-%Y")
-
-try:
-	eCommSKU = '%s' % sys.argv[1]
-except:
-	eCommSKU = "LUM"
-
 inputFolder = './SpreadsheetExports/' # hardcoded location of input files
 outputFolder = './output/' # hardcoded file for output, converted files.
 
-def amazonIndexes(storeName, header, salesLog):
-	total = 0
-	x = 1
+with open('totalSales.txt', 'w+') as deleteExistingLog: # delete/create any old sales log
+	pass
 
-	writeHeader(header, storeName, curMonth)
-	writeHeader(header, storeName, 'PrevMonths')
+def refreshCurDir():
+	currentDirectory = next(os.walk('%s' % inputFolder))[2] # Get each spreadsheet filename
+	return currentDirectory
+
+def xls2csv(xlsFile, csvFile): # Kudos to https://www.penwatch.net/cms/excel_to_csv/
+    workbook = xlrd.open_workbook(xlsFile)
+    sheet = workbook.sheet_by_index(0)
+
+    file = open(csvFile, "wb")
+    csvOutput = unicodecsv.writer(file, encoding='utf-8')
+
+    for row in xrange(sheet.nrows):
+        csvOutput.writerow(sheet.row_values(row))
+    file.close()
+
+def writeHeader(content, storeName, month):
+	if month == 'PrevMonths':
+		output = open('%s/PrevMonths/%s-%s.csv' % (outputFolder, storeName, month), 'a+')
+	else:
+		output = open('%s/%s-%s.csv' % (outputFolder, storeName, month), 'a+') # Output CSV
+
+	for each in content: # Keep original marketplace header intact.
+		output.write('%s,' % each) # Comma dlimited
+	output.write('\n') # New line escaped
+
+def totalSalesLog(sales):
+	with open('totalSales.txt', 'a+') as allSales:
+		allSales.write("%s \n" % sales)
+
+def amazonIndexes(storeName, header, salesLog): # Repetitive function with custom indexing related to Amazon sales export. (Orders > Order Reports > Sold Listings Report)
+	total = 0 # Counter for total Sales
+	x = 1 # Counter for number of rows in output spreadsheet. Provides range for writing spreadsheet functions. e.g: =SUM(C2:CX)
+
+	writeHeader(header, storeName, curMonth) # Retain headers for output file with current months sales
+	writeHeader(header, storeName, 'PrevMonths') # Ditto except for any sale made before current month
 
 	for index in salesLog:
-		if index[2][0:3] != eCommSKU:
+		if index[2][0:3] != eCommSKU: # If sold item's SKU does not match specified product line, skip it.
 			pass
 
-		elif index[2][0:3] == eCommSKU:
-			purchaseDate = index[5].split(" ")[0] 
-			purchaseDate = datetime.strptime(purchaseDate, '%Y-%m-%d') 
+		elif index[2][0:3] == eCommSKU: # If sold item's SKU does match the product line we want, perform the following.
+			purchaseDate = index[5].split(" ")[0] # Split time from date. Only reference date.
+			purchaseDate = datetime.strptime(purchaseDate, '%Y-%m-%d') # Restructure date/string to parseable datetime object
 
-			if currentTime.strftime('%m') == purchaseDate.strftime('%m'): # Match numerical month string in spreadsheet, with current month. ie: 11, 12, etc...
-				output = open('%s/%s-%s.csv' % (outputFolder, storeName, currentTime.strftime("%m-%Y")), 'a+')
-				x += 1
-				total += float(index[3]) * float(index[10])
+			if currentTime.strftime('%m') == purchaseDate.strftime('%m'): # If numerical sale date month, matches current month, perform the following.
+				output = open('%s/%s-%s.csv' % (outputFolder, storeName, currentTime.strftime("%m-%Y")), 'a+') # open current month, output file for appending.
+				x += 1 # 1up total line items
+				total += float(index[3]) * float(index[10]) # Add sell price of current line item to total sales counter
 			
-			elif currentTime.strftime('%m') != purchaseDate.strftime('%m'):
-				output = open('%s/PrevMonths/%s-PrevMonths.csv' % (outputFolder, storeName), 'a+')
+			elif currentTime.strftime('%m') != purchaseDate.strftime('%m'): # Otherwise, if sale date is not within current month, append to 'Previous Month' log file.
+				output = open('%s/PrevMonths/%s-PrevMonths.csv' % (outputFolder, storeName), 'a+') # Open previous months, output file for appending
 
-			for each in index:
-				output.write('%s,' % each.replace(",", ""))
-			print index
+			for each in index: # For each item meeting SKU specificity...
+				output.write('%s,' % each.replace(",", "")) # write each row of raw csv to output csv 
+			print index # Print row that has matched the requirements
 
 			output.write("=sum(D%s*K%s)" % (x, x)) # Amazon has line items, regardless of multi item orders. Multiply 'Quantity' with 'Sale price.'
 			output.write('\n') # new line escaped
@@ -81,7 +112,39 @@ def eBayIndexes(storeName, header, salesLog): # Run on ebay Spreadsheet
 	output.close()
 	totalSalesLog("eBay: $%s" % total)
 
-	# Ugly code for last line in csv with spreadsheet functions in their respective columns.
+def shipStationIndexes(storeName, header, salesLog):
+	total = 0
+	x = 1
+
+	writeHeader(header, storeName, curMonth)
+	writeHeader(header, storeName, 'PrevMonths')
+
+	for index in salesLog:
+		if index[88][0:3] != 'LUM':
+			pass
+
+		elif index[88][0:3] == eCommSKU:
+			purchaseDate = index[68].split(" ")[0]
+			purchaseDate = datetime.strptime(purchaseDate, '%m/%d/%Y')
+
+			if currentTime.strftime('%m') == purchaseDate.strftime('%m'):
+				output = open('%s/%s-%s.csv' % (outputFolder, storeName, currentTime.strftime("%m-%Y")), 'a+')
+				x += 1
+				total += float(index[96]) * float(index[75])
+
+			elif currentTime.strftime('%m') != purchaseDate.strftime('%m'):
+				output = open('%s/PrevMonths/%s-PrevMonths.csv' % (outputFolder, storeName), 'a+')
+
+			for each in index:
+				output.write('%s,' % each.replace(",", "")) # replace any rogue commas in product title, customer address, etc...
+			print index
+				
+			output.write("=sum(CS%s*BX%s)" % (x, x))
+			output.write('\n')
+
+	output.write(",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,=SUM(BX2:BX%s),,,,,,,,,,,,,,,,,,,,,=SUM(CS2:CS%s),,,,,,,,,,=SUM(DC2:DC%s)" % (x, x, x))
+	output.close()
+	totalSalesLog("ShipStation: $%s" % total)
 
 def wallyIndexes(storeName, header, salesLog):
 	total = 0
@@ -117,60 +180,15 @@ def wallyIndexes(storeName, header, salesLog):
 	totalSalesLog("Wally: $%s" % total)
 	# Ugly code for last line in csv with spreadsheet functions in their respective columns.
 
-def shipStationIndexes(storeName, header, salesLog):
-	total = 0
-	x = 1
-
-	writeHeader(header, storeName, curMonth)
-	writeHeader(header, storeName, 'PrevMonths')
-
-	for index in salesLog:
-		if index[88][0:3] != 'LUM':
-			pass
-
-		elif index[88][0:3] == eCommSKU:
-			purchaseDate = index[68].split(" ")[0]
-			purchaseDate = datetime.strptime(purchaseDate, '%m/%d/%Y')
-
-			if currentTime.strftime('%m') == purchaseDate.strftime('%m'):
-				output = open('%s/%s-%s.csv' % (outputFolder, storeName, currentTime.strftime("%m-%Y")), 'a+')
-				x += 1
-				total += float(index[96]) * float(index[75])
-
-			elif currentTime.strftime('%m') != purchaseDate.strftime('%m'):
-				output = open('%s/PrevMonths/%s-PrevMonths.csv' % (outputFolder, storeName), 'a+')
-
-			for each in index:
-				output.write('%s,' % each.replace(",", "")) # replace any rogue commas in product title, customer address, etc...
-			print index
-				
-			output.write("=sum(CS%s*BX%s)" % (x, x))
-			output.write('\n')
-
-	output.write(",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,=SUM(BX2:BX%s),,,,,,,,,,,,,,,,,,,,,=SUM(CS2:CS%s),,,,,,,,,,=SUM(DC2:DC%s)" % (x, x, x))
-	output.close()
-	totalSalesLog("ShipStation: $%s" % total)
-
 def parseBasedOn(storeName, header, salesLog): # We quick check which store the spreadsheet belongs to
-	if storeName == 'eBay':
-		eBayIndexes(storeName, header, salesLog)
-	elif storeName == 'Amazon':
+	if storeName == 'Amazon':
 		amazonIndexes(storeName, header, salesLog)
+	elif storeName == 'eBay':
+		eBayIndexes(storeName, header, salesLog)
 	elif storeName == 'Wally':
 		wallyIndexes(storeName, header, salesLog)
 	elif storeName == 'ShipStation':
 		shipStationIndexes(storeName, header, salesLog)
-
-def xls2csv(xlsFile, csvFile): # Kudos to https://www.penwatch.net/cms/excel_to_csv/
-    workbook = xlrd.open_workbook(xlsFile)
-    sheet = workbook.sheet_by_index(0)
-
-    file = open(csvFile, "wb")
-    csvOutput = unicodecsv.writer(file, encoding='utf-8')
-
-    for row in xrange(sheet.nrows):
-        csvOutput.writerow(sheet.row_values(row))
-    file.close()
 
 def makeFile(file): # Input file, output file
 	with open(file, 'r') as inCsv:
@@ -193,36 +211,13 @@ def makeFile(file): # Input file, output file
 
 		parseBasedOn(storeName, header, salesLog)
 
-def writeHeader(content, storeName, month):
-	if month == 'PrevMonths':
-		output = open('%s/PrevMonths/%s-%s.csv' % (outputFolder, storeName, month), 'a+')
-	else:
-		output = open('%s/%s-%s.csv' % (outputFolder, storeName, month), 'a+') # Output CSV
-
-	for each in content: # Keep original marketplace header intact.
-		output.write('%s,' % each) # Comma dlimited
-	output.write('\n') # New line escaped
-
-def totalSalesLog(sales):
-	with open('totalSales.txt', 'a+') as allSales:
-		allSales.write("%s \n" % sales)
-
-def refreshCurDir():
-	currentDirectory = next(os.walk('%s' % inputFolder))[2] # Get each spreadsheet filename
-	return currentDirectory
-
-with open('totalSales.txt', 'w+') as deleteExistingLog:
-	pass
-
 if __name__ == "__main__":
-	print refreshCurDir()
+	for each in refreshCurDir(): # Walmart exports as .xlsx (Excel) file format, convert that garbage to csv.
+		if each.endswith('.xlsx'): # If spreadsheet is xlsx file fomat do the following.
+			xlsFile = '%s%s' % (inputFolder, each) # old file name/location
+			csvFile = '%s%s' % (inputFolder, each.replace('.xlsx', '.csv')) # new file name/location
+			xls2csv(xlsFile, csvFile) # convert xlsx to csv
+			os.remove('%s' % xlsFile) # delete xlsx file so later makeFile() function doesn't error out
 
-	for each in refreshCurDir():
-		if each.endswith('.xlsx'):
-			xlsFile = '%s%s' % (inputFolder, each)
-			csvFile = '%s%s' % (inputFolder, each.replace('.xlsx', '.csv'))
-			xls2csv(xlsFile, csvFile)
-			os.remove('%s' % xlsFile)
-
-	for eachFile in refreshCurDir(): #Run script on each file
-		makeFile('./%s%s' % (inputFolder, eachFile))
+	for eachFile in refreshCurDir(): # Refresh current directory (all csv formats, not xlsx) 
+		makeFile('./%s%s' % (inputFolder, eachFile)) #Run script on each file
