@@ -1,5 +1,5 @@
 # eCommerceScripts
-Get monthly eCommerce Sales from Amazon, eBay, Walmart, Jet and ShipStation exports.
+An assortment of eCommerce scripts created as result of a lengthy and involved eCommerce career. Some of the scripts functionality include the following. Collecting total monthly sales for one particular SKU, across all platforms. Creating hyperlinks from product UPC. Webscraping product info (color variations, retail pricing, etc...), making more concise spreadsheets from excessively redundant platform exports and more.
 
 **Before**  
 ![before](https://user-images.githubusercontent.com/8212296/32787819-2b4af510-c91d-11e7-9881-d33ba9a21c2f.PNG)
@@ -41,6 +41,7 @@ Get monthly eCommerce Sales from Amazon, eBay, Walmart, Jet and ShipStation expo
 * Total sales 'GUI' metrics aren't always reliable, sometimes are too general and/or don't offer filtering of sales.
 
 ## TODO
+* Clean up this repo/readme. More descriptions for recently added scripts.
 * ~~Finish ship station function --> Add =SUM spread functs~~
 * ~~Pythonically add up totals of a column. Then output dictionary of {eBay: $TotalSales, Amazon: $X} to log file for easy (no gsheet/xlsx) reference~~
 * <strike>Add sys.argv[1] input to specify SKU prefix that gets parsed
