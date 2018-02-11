@@ -28,23 +28,25 @@ def productDetailsFrom(url):
 
 	with open(urlFile, 'r') as urls:
 		for url in urls.readlines():
-			sku = url.split(',')[0]
-			url = url.split(',')[1]
+			sku, url = url.split(',')
 
 			get = requests.get(url)
 			htmlSource = get.content
 			soup = BeautifulSoup(htmlSource, 'html.parser')
-
+			
+			#---------------------------------------START OF QVC---------------------------------------------------#
+			### SCRAPING QVC VIA FILE OF URLS, PRODUCED BY AUTO SEARCHING FOR UPCS###
+			"""
 			itemTitle = soup.find_all('h1')[0].get_text()
-			#itemNumber = soup.find_all(class_='itemNo')[0].get_text()
+			itemNumber = soup.find_all(class_='itemNo')[0].get_text()
 
 			buyBox = soup.find_all('div', class_='buyBoxPricing')
 			compPrice = buyBox[0].find_all('p', class_='rvPrice')
 			price = compPrice[0].find_all('span')[0].get_text().replace('\t', '').replace('\n', '').replace('  ', '')
 			
-			#price = compPrice[0].attrs['rvPrice']
-			#clearancePrice = buyBox[0].find_all('span', class_='productDetailPrice')[0]
-			#price = clearancePrice.get_text().replace('\t', '').replace('\n', '')
+			price = compPrice[0].attrs['rvPrice']
+			clearancePrice = buyBox[0].find_all('span', class_='productDetailPrice')[0]
+			price = clearancePrice.get_text().replace('\t', '').replace('\n', '')
 
 			colorVariations = soup.find_all('ul', class_='buyBoxColorList')
 			colorList = colorVariations[0].find_all('li')#.attrs#find_all('title').attrs
@@ -55,13 +57,24 @@ def productDetailsFrom(url):
 				colorOptions.append('%s' % color)
 
 	#IF GETTING ALL COLOR VARIATIONS#
-	#listing = '%s, %s, %s, [%s]\n' % (itemNumber, itemTitle, price, ','.join(str(x) for x in colorOptions))
+	listing = '%s, %s, %s, [%s]\n' % (itemNumber, itemTitle, price, ','.join(str(x) for x in colorOptions))
 
 	listing = '%s, %s, %s, [%s]\n' % (sku, itemTitle, price, ','.join(str(x) for x in colorOptions))
 	productDetails.append(listing)
 	print productDetails
 	return listing
-
+	"""		
+	#---------------------------------------END OF QVC---------------------------------------------------#
+	#---------------------------------------START OF AMAZON---------------------------------------------------#
+	### SCRAPE AMAZON VIA FILE OF ASINS###
+	"""
+	findTitle = soup.find_all('span', id='productTitle')
+	fullTitle = findTitle[0].get_text().replace('  ', '').replace('\n', '')
+	
+	priceBlock = soup.find_all('tr', id='priceblock_dealprice_row')
+	price = priceBlock[0].find_all(class_='a-size-medium a-color-price')[0].get_text()#[0]#.find_all(class_='a-text-strike')[0].get_text()
+	"""
+	#---------------------------------------END OF AMAZON---------------------------------------------------#
 with open(inputFile, 'r') as f:
 	for sku in f.readlines():
 		with open(outputFile, 'a+') as out:
