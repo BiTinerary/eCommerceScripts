@@ -19,6 +19,8 @@ An assortment of eCommerce scripts created as result of a lengthy and involved e
   
 `python OrderAnalysis.py` will take **one** ShipStation csv spreadsheet, in the same directory [as itself] and will remove all extraneous columns except ones pertaining to analysing sales and returns. ie: `python OrderAnalysis.py sales` will  output a trimmed csv which has columns like order date, order number, **cost of shipping**, item description, SKU, etc... where as `python OrderAnalysis.py returns` will perform the same function, but will output different columns relating to returns [manual orders export].
 
+![capture](https://user-images.githubusercontent.com/8212296/36359847-64cd262e-14e4-11e8-8ec0-095995f8e602.PNG)
+
 **Requirements:** None
 * **output** and **SpreadsheetExports** folders are required and hardcoded. Can easily be changed or made to disclude.
 * System agnostic. All imported libraries are native to default python installation. (ie: `os, csv, datetime`)  
