@@ -13,13 +13,17 @@ An assortment of eCommerce scripts created as result of a lengthy and involved e
 **After**
 ![afterz](https://user-images.githubusercontent.com/8212296/33212256-c98ef998-d0e7-11e7-9c0e-52f0bc7866d9.PNG)
 
+**Before**
+![capture](https://user-images.githubusercontent.com/8212296/36359847-64cd262e-14e4-11e8-8ec0-095995f8e602.PNG)
+
+**After**  
+LoadID,ExtID,Variation,Barcode,Condtion  
+PALLET1,00000123,SIZE8,98735698760,LIKENEW
 
 ## Usage
 `python getSales.py` will take **any** raw Amazon/Ebay/Walmart/ShipStation spreadsheet exports in the **SpreadsheetExports** folder and parse them. The resulting files will be created in the **output** folder. Each output will be a csv, with a name corresponding to the particular marketplace, todays date and will include only sales, for a particular SKU for the current month.
   
 `python OrderAnalysis.py` will take **one** ShipStation csv spreadsheet, in the same directory [as itself] and will remove all extraneous columns except ones pertaining to analysing sales and returns. ie: `python OrderAnalysis.py sales` will  output a trimmed csv which has columns like order date, order number, **cost of shipping**, item description, SKU, etc... where as `python OrderAnalysis.py returns` will perform the same function, but will output different columns relating to returns [manual orders export].
-
-![capture](https://user-images.githubusercontent.com/8212296/36359847-64cd262e-14e4-11e8-8ec0-095995f8e602.PNG)
 
 **Requirements:** None
 * **output** and **SpreadsheetExports** folders are required and hardcoded. Can easily be changed or made to disclude.
