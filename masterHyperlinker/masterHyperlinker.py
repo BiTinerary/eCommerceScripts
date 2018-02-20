@@ -1,4 +1,5 @@
-import os, sys
+import os, sys, mechanize
+br = mechanize.Browser()
 
 with open('input.txt', 'r') as f:
 	lines = f.readlines()
@@ -18,9 +19,6 @@ with open('output.txt', 'w+') as g:
 				 g.write('\n')
 
 		elif sys.argv[1] == 'sportsman':
-			import mechanize
-			br = mechanize.Browser()
-
 			staticurl = "http://www.sportsmansguide.com"
 			if len(line) > 2:
 				productid = line[0:6]
