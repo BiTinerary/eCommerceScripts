@@ -13,7 +13,7 @@ An assortment of eCommerce scripts created as result of a lengthy and involved e
 **After**
 ![afterz](https://user-images.githubusercontent.com/8212296/33212256-c98ef998-d0e7-11e7-9c0e-52f0bc7866d9.PNG)
 
-**Before**
+**Before**  
 ![capture](https://user-images.githubusercontent.com/8212296/36359847-64cd262e-14e4-11e8-8ec0-095995f8e602.PNG)
 
 **After**  
