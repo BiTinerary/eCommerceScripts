@@ -1,5 +1,18 @@
 import os, sys, mechanize
+import unicodecsv, xlrd, csv
+
 br = mechanize.Browser()
+
+def xls2csv(xlsFile, csvFile): # Kudos to https://www.penwatch.net/cms/excel_to_csv/
+    workbook = xlrd.open_workbook(xlsFile)
+    sheet = workbook.sheet_by_index(0)
+
+    file = open(csvFile, "wb")
+    csvOutput = unicodecsv.writer(file, encoding='utf-8')
+
+    for row in xrange(sheet.nrows):
+        csvOutput.writerow(sheet.row_values(row))
+    file.close()
 
 with open('input.txt', 'r') as f:
 	lines = f.readlines()
