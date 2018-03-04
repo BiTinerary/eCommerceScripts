@@ -1,5 +1,6 @@
 import json, csv, os
 import Tkinter as tk
+from Tkinter import StringVar
 from datetime import datetime
 
 fullArray = []
@@ -17,7 +18,7 @@ def center(toplevel): # Function for centering all windows upon execution.
     size = tuple(int(_) for _ in toplevel.geometry().split('+')[0].split('x'))
     x = w/2 - size[0]/2 # find the middle of width resolution
     y = h/2 - size[1]/2 # find the middle of height resolution
-    toplevel.geometry("%dx%d+%d+%d" % (size + (x, y)))
+    toplevel.geometry("%dx%d+%d+%d" % (size + (x, y)))	
 
 def makeFolder():
 	if os.path.exists(folderWithTodaysDate) == True: #If file w/ today's date exists, then continue the script.
@@ -61,53 +62,53 @@ def getProductDetails(scan):
 		matches = [desc, dept, retail]
 		return matches
 
-def descHistory():
-	try:
-		HistoryDesc0 = tk.Label(width=25, anchor='n', relief='ridge', fg='blue', text='%s' % fullArray[-1][4])
-		HistoryDesc0.grid(row=6, column=1, padx=(159,5), pady=5)
-	except:
-		HistoryDesc0 = tk.Label(width=25, anchor='n', relief='ridge', fg='red', text='Attention! CID: %s' % fullArray[-1][3])
-		HistoryDesc0.grid(row=6, column=1, padx=(159,5), pady=5)
-
-def history():
-	HistoryCID0 = tk.Label(width=15, anchor='n', relief='ridge', text='')
-	HistoryCID0.grid(row=6, column=0, padx=5, pady=5)
-	HistoryVar0 = tk.Label(width=20, anchor='n', relief='ridge', text='')
-	HistoryVar0.grid(row=6, column=1, padx=(5,195), pady=5)
-	HistoryDesc0 = tk.Label(width=25, anchor='n', relief='ridge', text='')
-	HistoryDesc0.grid(row=6, column=1, padx=(159,5), pady=5)
-
-	HistoryCID1 = tk.Label(width=15, anchor='n', relief='ridge', text='')
-	HistoryCID1.grid(row=7, column=0, padx=5, pady=5)
-	HistoryVar1 = tk.Label(width=20, anchor='n', relief='ridge', text='')
-	HistoryVar1.grid(row=7, column=1, padx=(5,195), pady=5)
-	HistoryDesc1 = tk.Label(width=25, anchor='n', relief='ridge', text='')
-	HistoryDesc1.grid(row=7, column=1, padx=(159,5), pady=5)		
+def getDesc(passDesc, descLabels):
+	HistoryDesc0, HistoryDesc1 = descLabels
+	desc0, desc1 = passDesc
 
 	try:
-		HistoryCID0 = tk.Label(width=15, anchor='n', relief='ridge', text='%s' % fullArray[-1][1])
-		HistoryCID0.grid(row=6, column=0, padx=5, pady=5)
-		HistoryVar0 = tk.Label(width=20, anchor='n', relief='ridge', text='%s' % fullArray[-1][2])
-		HistoryVar0.grid(row=6, column=1, padx=(5,195), pady=5)	
+		HistoryDesc0.config(fg='Blue')
+		desc0.set(fullArray[-1][4])
 		try:
-			HistoryCID1 = tk.Label(width=15, anchor='n', relief='ridge', text='%s' % fullArray[-2][1])
-			HistoryCID1.grid(row=7, column=0, padx=5, pady=5)
-			HistoryVar1 = tk.Label(width=20, anchor='n', relief='ridge', text='%s' % fullArray[-2][2])
-			HistoryVar1.grid(row=7, column=1, padx=(5,195), pady=5)
-			descHistory()
-			try:
-				HistoryDesc1 = tk.Label(width=25, anchor='n', relief='ridge', fg='blue', text='%s' % fullArray[-2][4])
-				HistoryDesc1.grid(row=7, column=1, padx=(159,5), pady=5)
-						
-			except:
-				HistoryDesc1 = tk.Label(width=25, anchor='n', relief='ridge', fg='red', text='Attention! CID: %s' % fullArray[-2][3])
-				HistoryDesc1.grid(row=7, column=1, padx=(159,5), pady=5)
+			HistoryDesc1.config(fg='Blue')
+			desc1.set(fullArray[-2][4])
 		except:
-			descHistory()
+			HistoryDesc1.config(fg='Red')
+			desc1.set(fullArray[-2][3])
+	except Exception as e:
+		print e, 3
+		print fullArray[-1]
+		HistoryDesc0.config(fg='Red')
+		HistoryDesc1.config(fg='Red')
+
+		desc0.set(fullArray[-1][3])
+		desc1.set(fullArray[-2][3])
+
+def history(histList, descLabels):
+	x = len(fullArray)
+	last = x-1
+	cid0, var0, desc0, count0, cid1, var1, desc1, count1 = histList
+	passDesc = [desc0, desc1]
+
+	try:
+		cid0.set(fullArray[-1][1])
+		var0.set(fullArray[-1][2])
+		count0.set(x)
+		desc0.set(fullArray[-1][3])
+		try:
+			cid1.set(fullArray[-2][1])
+			var1.set(fullArray[-2][2])
+			count1.set(last)
+			try:
+				getDesc(passDesc, descLabels)
+			except:
+				getDesc(passDesc, descLabels)
+		except:
+			getDesc(passDesc, descLabels)
 	except:
 		pass
 
-def GetStaticInputs(endUserInputs):
+def getAndPass(endUserInputs, histList, descLabels):
 	tempArray = []
 
 	for each in endUserInputs:
@@ -119,21 +120,22 @@ def GetStaticInputs(endUserInputs):
 		[matchArray.append(m) for m in getProductDetails(costcoID)]
 
 		for each in matchArray:
-			tempArray.append(each)
+			tempArray.append(str(each))
 		fullArray.append(tempArray)
 
 	except:
 		fullArray.append(tempArray) # append array with manual inputs, regardless of CID being found in dbase.
 
 	finally:
-		history()
+		history(histList, descLabels)
 		outputLog(fullArray)
 		runLog(fullArray)
 
 class MainApp(tk.Tk): # Main GUI window with buttons in line.
 	def __init__(self):
 		tk.Tk.__init__(self)
-		LoadIDLabel = tk.Label(width=15, relief='ridge',text='Pallet')#header[0])
+
+		LoadIDLabel = tk.Label(width=15, relief='ridge', text='Pallet')#header[0])
 		LoadIDLabel.grid(row=0, column=0, padx=5, pady=5)
 		ExternalIDLabel = tk.Label(width=15, relief='ridge', text='CID')#header[1])
 		ExternalIDLabel.grid(row=1, column=0, padx=5, pady=5)
@@ -141,8 +143,6 @@ class MainApp(tk.Tk): # Main GUI window with buttons in line.
 		VariationLabel.grid(row=2, column=0, padx=5, pady=5)
 		BarcodeLabel = tk.Label(width=15, relief='ridge', text='Barcode')#header[3])
 		BarcodeLabel.grid(row=3, column=0, padx=5, pady=5)
-
-		history()
 
 		LoadIDEntry = tk.Entry(width=55)
 		LoadIDEntry.grid(row=0, column=1, padx=5, pady=5)
@@ -152,23 +152,47 @@ class MainApp(tk.Tk): # Main GUI window with buttons in line.
 		VariationEntry = tk.Entry(width=55)
 		VariationEntry.grid(row=2, column=1, padx=5, pady=5)
 		BarcodeEntry = tk.Entry(width=55) #ConditionEntry = tk.Entry(width=55)
-		BarcodeEntry.grid(row=3, column=1, padx=5, pady=5) #ConditionEntry.grid(row=4, column=1, padx=5, pady=5)	
-		
-		endUserInputs = [LoadIDEntry, ExternalIDEntry, VariationEntry, BarcodeEntry]#, ConditionEntry]
+		BarcodeEntry.grid(row=3, column=1, padx=5, pady=5) #ConditionEntry.grid(row=4, column=1, padx=5, pady=5)
 
-		EnterButton = tk.Button(text="Enter", width=31, height=2, command=lambda: GetStaticInputs(endUserInputs))
+		cid0, var0, desc0, count0, cid1, var1, desc1, count1 = [StringVar() for i in range(8)]
+		histList = [cid0, var0, desc0, count0, cid1, var1, desc1, count1]
+
+		HistoryCID0 = tk.Label(width=15, anchor='n', relief='ridge', text='', textvariable=cid0)
+		HistoryCID0.grid(row=6, column=0, padx=5, pady=5)
+		HistoryVar0 = tk.Label(width=20, anchor='n', relief='ridge', text='', textvariable=var0)
+		HistoryVar0.grid(row=6, column=1, padx=(5,195), pady=5)
+		HistoryDesc0 = tk.Label(width=18, anchor='n', relief='ridge', text='', textvariable=desc0)
+		HistoryDesc0.grid(row=6, column=1, padx=(110,5), pady=5)
+		HistoryCounter0 = tk.Label(width=5, anchor='n', relief='ridge', text='', textvariable=count0)
+		HistoryCounter0.grid(row=6, column=1, padx=(300, 5), pady=5)
+
+		HistoryCID1 = tk.Label(width=15, anchor='n', relief='ridge', text='', textvariable=cid1)
+		HistoryCID1.grid(row=7, column=0, padx=5, pady=5)
+		HistoryVar1 = tk.Label(width=20, anchor='n', relief='ridge', text='', textvariable=var1)
+		HistoryVar1.grid(row=7, column=1, padx=(5,195), pady=5)
+		HistoryDesc1 = tk.Label(width=18, anchor='n', relief='ridge', text='', textvariable=desc1)
+		HistoryDesc1.grid(row=7, column=1, padx=(110,5), pady=5)
+		HistoryCounter1 = tk.Label(width=5, anchor='n', relief='ridge', text='', textvariable=count1)
+		HistoryCounter1.grid(row=7, column=1, padx=(300, 5), pady=5)
+		
+		descLabels = [HistoryDesc0, HistoryDesc1]
+		history(histList, descLabels)
+		userInputs = [LoadIDEntry, ExternalIDEntry, VariationEntry, BarcodeEntry]#, ConditionEntry]
+
+		EnterButton = tk.Button(text="Enter", width=31, height=2, command=lambda: [getAndPass(userInputs, histList, descLabels), BarcodeEntry.delete(0, 999)])
 		EnterButton.grid(row=8, column=0, padx=(0,233), pady=5, columnspan=2)
 		DeleteButton = tk.Button(text="Delete", width=31, height=2, command=lambda: delete())
 		DeleteButton.grid(row=8, column=1, padx=(110,0), pady=5, columnspan=2)
-		self.bind('<Return>', (lambda event: GetStaticInputs(endUserInputs)))
+		self.bind('<Return>', (lambda event: [getAndPass(userInputs, histList, descLabels), BarcodeEntry.delete(0, 999)]))#GetStaticInputs(endUserInputs)))
 		self.bind('<Delete>', (lambda event: delete()))
 		self.bind('<Key-Escape>', (lambda event: self.destroy()))
+
 
 if __name__ == "__main__": # compile the main class/widgets to be displayed on screen.
 	makeFolder()
 	root = MainApp()
 	center(root)
 	root.resizable(0,0)
-	root.wm_iconbitmap('.\sglogo2.ico')
+	#root.wm_iconbitmap('.\sglogo2.ico')
 	root.title('Secret Sauce v2.0')
 	root.mainloop()
