@@ -52,7 +52,6 @@ def getProductDetails(scan):
 	scan = str(scan)
 	with open('shoesLookup.json', 'r') as jf:
 		data = json.load(jf)
-
 	cids = [i for i in data]
 
 	if scan in cids:
@@ -75,9 +74,7 @@ def getDesc(passDesc, descLabels):
 		except:
 			HistoryDesc1.config(fg='Red')
 			desc1.set(fullArray[-2][3])
-	except Exception as e:
-		print e, 3
-		print fullArray[-1]
+	except:
 		HistoryDesc0.config(fg='Red')
 		HistoryDesc1.config(fg='Red')
 
@@ -94,11 +91,22 @@ def history(histList, descLabels):
 		cid0.set(fullArray[-1][1])
 		var0.set(fullArray[-1][2])
 		count0.set(x)
+		
+		if len(fullArray[-1][3]) >= 36:
+			descLabels[0].config(anchor='e')
+		else:
+			descLabels[0].config(anchor='n')
+
 		desc0.set(fullArray[-1][3])
 		try:
 			cid1.set(fullArray[-2][1])
 			var1.set(fullArray[-2][2])
 			count1.set(last)
+
+			if len(fullArray[-2][3]) >= 36:
+				descLabels[1].config(anchor='e')
+			else:
+				descLabels[1].config(anchor='n')
 			try:
 				getDesc(passDesc, descLabels)
 			except:
@@ -159,19 +167,19 @@ class MainApp(tk.Tk): # Main GUI window with buttons in line.
 
 		HistoryCID0 = tk.Label(width=15, anchor='n', relief='ridge', text='', textvariable=cid0)
 		HistoryCID0.grid(row=6, column=0, padx=5, pady=5)
-		HistoryVar0 = tk.Label(width=20, anchor='n', relief='ridge', text='', textvariable=var0)
-		HistoryVar0.grid(row=6, column=1, padx=(5,195), pady=5)
-		HistoryDesc0 = tk.Label(width=18, anchor='n', relief='ridge', text='', textvariable=desc0)
-		HistoryDesc0.grid(row=6, column=1, padx=(110,5), pady=5)
+		HistoryVar0 = tk.Label(width=15, anchor='n', relief='ridge', text='', textvariable=var0)
+		HistoryVar0.grid(row=6, column=1, padx=(5,230), pady=5)
+		HistoryDesc0 = tk.Label(width=23, anchor='n', relief='ridge', text='', textvariable=desc0)
+		HistoryDesc0.grid(row=6, column=1, padx=(75,5), pady=5)
 		HistoryCounter0 = tk.Label(width=5, anchor='n', relief='ridge', text='', textvariable=count0)
 		HistoryCounter0.grid(row=6, column=1, padx=(300, 5), pady=5)
 
 		HistoryCID1 = tk.Label(width=15, anchor='n', relief='ridge', text='', textvariable=cid1)
 		HistoryCID1.grid(row=7, column=0, padx=5, pady=5)
-		HistoryVar1 = tk.Label(width=20, anchor='n', relief='ridge', text='', textvariable=var1)
-		HistoryVar1.grid(row=7, column=1, padx=(5,195), pady=5)
-		HistoryDesc1 = tk.Label(width=18, anchor='n', relief='ridge', text='', textvariable=desc1)
-		HistoryDesc1.grid(row=7, column=1, padx=(110,5), pady=5)
+		HistoryVar1 = tk.Label(width=15, anchor='n', relief='ridge', text='', textvariable=var1)
+		HistoryVar1.grid(row=7, column=1, padx=(5,230), pady=5)
+		HistoryDesc1 = tk.Label(width=23, anchor='n', relief='ridge', text='', textvariable=desc1)
+		HistoryDesc1.grid(row=7, column=1, padx=(75,5), pady=5)
 		HistoryCounter1 = tk.Label(width=5, anchor='n', relief='ridge', text='', textvariable=count1)
 		HistoryCounter1.grid(row=7, column=1, padx=(300, 5), pady=5)
 		
